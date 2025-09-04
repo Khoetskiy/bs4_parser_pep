@@ -17,3 +17,10 @@ EXPECTED_STATUS = {
     'W': ('Withdrawn',),
     '': ('Draft', 'Active'),
 }
+
+
+# ----------- Logging -----------
+LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
+LOG_DT_FORMAT = '%d.%m.%Y %H:%M:%S'
+MAXBYTES = 10**6
+BACKUPCOUNT = 4
