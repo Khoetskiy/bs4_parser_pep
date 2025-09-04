@@ -148,7 +148,6 @@ http_cache.sqlite
 downloads/
 logs/
 
-results/
 downloads/
 
 *.sqlite
