@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "ruff>=0.12.12",
+]
 
 [tool.ruff]
 src = ["backend"]
@@ -120,6 +122,11 @@ ignore = [
     "BLE001", # Перехват "слепых" исключений
     "T201",   # Печать print
     "RUF002",  # Использование кириллицы
+
+    "ARG005", # Неиспользуемый аргумент lamba функции
+    "N818", # Название исклюения без Exception в конце
+    "DTZ005", # Использование datetime.now() без timezone
+    "TC002", # Импорт вне блока type checking
 ]
 
 unfixable = [
@@ -151,10 +158,4 @@ docstring-code-format = true
 skip-magic-trailing-comma = false
 
 [tool.ruff.lint.per-file-ignores]
-"*/settings/*.py" = ["F403", "F405", "E501", "T201", "PGH004", "TID252"]
-"*/migrations/*.py" = ["D100", "D101", "D102", "D103", "F401"]
-"*/apps.py" = ["F401", "D101", "D102"]
-"manage.py" = ["PLC0415", "TRY003", "EM101"]
-"*/wsgi.py" = ["D100", "E501"]
-"*/asgi.py" = ["D100", "E501"]
-"*/api/*" = ["ARG002"]
+"main.py" = ["D103"]
