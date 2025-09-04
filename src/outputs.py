@@ -4,9 +4,8 @@ import datetime as dt
 import logging
 
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
-from constants import BASE_DIR, DATETIME_FORMAT, TIMEZONE
+from constants import BASE_DIR, DATETIME_FORMAT
 from prettytable import PrettyTable
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ def file_output(results: list[tuple], cli_arg: argparse.Namespace) -> None:
     results_dir.mkdir(exist_ok=True, parents=True)
 
     parser_mode = cli_arg.mode
-    now = dt.datetime.now(tz=ZoneInfo(TIMEZONE))
+    now = dt.datetime.now()
     now_formatted = now.strftime(DATETIME_FORMAT)
 
     file_name = f'{parser_mode}_{now_formatted}.csv'

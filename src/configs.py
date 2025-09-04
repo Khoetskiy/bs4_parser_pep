@@ -30,7 +30,7 @@ def configure_argument_parser(available_modes):
         '-o',
         '--output',
         choices=('pretty', 'file'),
-        help='Формат вывода: pretty для консоли, file для сохранения в файл'
+        help='Дополнительные способы вывода данных'
     )
     return parser
 

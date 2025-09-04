@@ -6,7 +6,6 @@ MAIN_DOC_URL = 'https://docs.python.org/3/'
 PEP_URL = 'https://peps.python.org/'
 
 DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
-TIMEZONE = 'Europe/Moscow'
 
 EXPECTED_STATUS = {
     'A': ('Active', 'Accepted'),
@@ -20,8 +19,20 @@ EXPECTED_STATUS = {
 }
 
 
+# ----------- Cached -----------
+EXPIRE_AFTER_CACHE = 43_200  # секунд
+CACHED_NAME = 'web_cache'
+
+
 # ----------- Logging -----------
 LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
 LOG_DT_FORMAT = '%d.%m.%Y %H:%M:%S'
 MAXBYTES = 10**6
 BACKUPCOUNT = 4
+
+MISMATCH_LOG_TEMPLATE = (
+    'Обнаружено несовпадение статуса PEP:\n'
+    '  URL: {}\n'
+    '  Статус в карточке: {}\n'
+    '  Ожидаемые статусы: {}\n'
+)

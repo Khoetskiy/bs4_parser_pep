@@ -4,7 +4,7 @@ import logging
 
 import requests_cache
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from exceptions import ParserFindTagException, RequestErrorException
 from requests import RequestException
 
@@ -18,8 +18,8 @@ def get_response(
     Выполняет GET-запрос по указанному URL с использованием переданной сессии.
 
     Args:
-        session (requests_cache.Session): Сессия для выполнения запроса.
-        url (str): URL для запроса.
+        session: Сессия для выполнения запроса.
+        url: URL для запроса.
 
     Returns:
         requests_cache.Response: Объект ответа, если запрос выполнен успешно.
@@ -39,14 +39,16 @@ def get_response(
         return response
 
 
-def find_tag(soup: BeautifulSoup, tag: str, attrs: dict | None = None):
+def find_tag(
+    soup: BeautifulSoup | Tag, tag: str, attrs: dict | None = None
+) -> Tag:
     """
     Находит HTML тег с обязательной проверкой существования.
 
     Args:
-        soup(BeautifulSoup): Объект для поиска.
-        tag(str): Имя HTML тега для поиска.
-        attrs(dict|None): Словарь атрибутов для фильтрации.
+        soup: Объект для поиска.
+        tag: Имя HTML тега для поиска.
+        attrs: Словарь атрибутов для фильтрации.
 
     Returns:
         Tag: Найденный HTML элемент.
@@ -82,18 +84,3 @@ def get_soup(
     """
     response = get_response(session, url)
     return BeautifulSoup(response.text, features)
-
-
-def safe_parse_operation(parse_function, *args, **kwargs):
-    """Безопасная обёртка для выполнения операций парсинга."""
-    try:
-        parse_function(*args, **kwargs)
-    except RequestErrorException:
-        logger.exception('Сетевая ошибка при парсинге:')
-        return
-    except ParserFindTagException:
-        logger.exception('Структура страницы изменилась:')
-        return
-    except Exception:
-        logger.exception('Критическая ошибка парсинга:')
-        raise
