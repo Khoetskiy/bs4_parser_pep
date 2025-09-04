@@ -6,6 +6,7 @@ MAIN_DOC_URL = 'https://docs.python.org/3/'
 PEP_URL = 'https://peps.python.org/'
 
 DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
+TIMEZONE = 'Europe/Moscow'
 
 EXPECTED_STATUS = {
     'A': ('Active', 'Accepted'),
