@@ -55,10 +55,13 @@ def test_control_output_pretty(capsys, records, cli_arg, part_output):
 ])
 def test_control_output_file(monkeypatch, tmp_path, records, cli_arg):
     mock_base_dir = Path(tmp_path)
-    monkeypatch.setattr(outputs, 'BASE_DIR', mock_base_dir)
+    mock_results_dir = mock_base_dir / 'results'
+
+    monkeypatch.setattr(outputs, 'RESULTS_DIR', mock_results_dir)
 
     records = records(cli_arg.mode)
     outputs.control_output(records, cli_arg)
+
     dirs = [
         directory.name for directory in mock_base_dir.iterdir()
         if directory.is_dir()

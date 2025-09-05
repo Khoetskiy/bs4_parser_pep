@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
 from constants import (
-    BASE_DIR,
     CACHED_NAME,
     DOWNLOADS_DIR,
     EXPECTED_STATUS,
@@ -160,10 +159,8 @@ def download(session: requests_cache.CachedSession) -> None:
     archive_url = urljoin(download_url, href)
 
     filename = archive_url.split('/')[-1]
-    # Тесты требуют создания папки здесь и наличия BASE_DIR
-    downloads_dir = BASE_DIR / DOWNLOADS_DIR
-    downloads_dir.mkdir(exist_ok=True, parents=True)
-    archive_path = downloads_dir / filename
+    DOWNLOADS_DIR.mkdir(exist_ok=True, parents=True)
+    archive_path = DOWNLOADS_DIR / filename
 
     if archive_path.exists():
         logger.info(
@@ -267,10 +264,10 @@ MODE_TO_FUNCTION = {
 
 
 def main():
-    try:
-        configure_logging()
-        logger.info('Парсер запущен!')
+    configure_logging()
+    logger.info('Парсер запущен!')
 
+    try:
         arg_parser = configure_argument_parser(MODE_TO_FUNCTION.keys())
         args = arg_parser.parse_args()
         logger.info('Аргументы командной строки: %s', args)
@@ -289,17 +286,11 @@ def main():
 
         if results is not None:
             control_output(results, args)
-    except RequestErrorException:
-        logger.exception('Сетевая ошибка при парсинге:')
+    except Exception:
+        logger.exception('Ошибка в режиме %s', parser_mode)
         return
-    except ParserFindTagException:
-        logger.exception('Структура страницы изменилась:')
-        return
-    except ParserBaseException:
-        logger.exception('Критическая ошибка парсинга:')
-        raise
-
-    logger.info('Парсер завершил работу штатно.')
+    else:
+        logger.info('Парсер завершил работу штатно.')
 
 
 if __name__ == '__main__':

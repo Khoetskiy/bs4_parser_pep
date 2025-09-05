@@ -88,7 +88,10 @@ def test_latest_versions(mock_session):
 
 def test_download(monkeypatch, tmp_path, mock_session):
     mock_base_dir = Path(tmp_path)
-    monkeypatch.setattr(main, 'BASE_DIR', mock_base_dir)
+    mock_downloads_dir = mock_base_dir / 'downloads'
+
+    monkeypatch.setattr(main, 'DOWNLOADS_DIR', mock_downloads_dir)
+
     got = main.download(mock_session)
     dirs = [
         directory for directory in mock_base_dir.iterdir()
