@@ -1,14 +1,16 @@
 import argparse
 import logging
-
 from logging.handlers import RotatingFileHandler
 
 from constants import (
     BACKUPCOUNT,
-    BASE_DIR,
+    LOG_DIR,
     LOG_DT_FORMAT,
+    LOG_FILE,
     LOG_FORMAT,
     MAXBYTES,
+    OUTPUT_FILE,
+    OUTPUT_PRETTY,
 )
 
 
@@ -29,20 +31,18 @@ def configure_argument_parser(available_modes):
     parser.add_argument(
         '-o',
         '--output',
-        choices=('pretty', 'file'),
-        help='Дополнительные способы вывода данных'
+        choices=(OUTPUT_PRETTY, OUTPUT_FILE),
+        help='Дополнительные способы вывода данных',
     )
     return parser
 
 
 def configure_logging():
     """Централизовано настраивает логирование для проекта."""
-    log_dir = BASE_DIR / 'logs'
-    log_dir.mkdir(exist_ok=True, parents=True)
-    log_file = log_dir / 'parser.log'
+    LOG_DIR.mkdir(exist_ok=True, parents=True)
 
     rotating_handler = RotatingFileHandler(
-        log_file, maxBytes=MAXBYTES, backupCount=BACKUPCOUNT
+        LOG_FILE, maxBytes=MAXBYTES, backupCount=BACKUPCOUNT
     )
     logging.basicConfig(
         format=LOG_FORMAT,

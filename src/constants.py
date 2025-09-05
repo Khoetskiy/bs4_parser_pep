@@ -18,6 +18,11 @@ EXPECTED_STATUS = {
     '': ('Draft', 'Active'),
 }
 
+OUTPUT_PRETTY = 'pretty'
+OUTPUT_FILE = 'file'
+
+LOG_DIR = BASE_DIR / 'logs'
+LOG_FILE = LOG_DIR / 'parser.log'
 
 # ----------- Cached -----------
 EXPIRE_AFTER_CACHE = 43_200  # секунд

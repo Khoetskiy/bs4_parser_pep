@@ -2,10 +2,9 @@ import argparse
 import csv
 import datetime as dt
 import logging
-
 from pathlib import Path
 
-from constants import BASE_DIR, DATETIME_FORMAT
+from constants import BASE_DIR, DATETIME_FORMAT, OUTPUT_FILE, OUTPUT_PRETTY
 from prettytable import PrettyTable
 
 logger = logging.getLogger(__name__)
@@ -45,8 +44,8 @@ def file_output(results: list[tuple], cli_arg: argparse.Namespace) -> None:
 
 
 OUTPUT_HANDLERS = {
-    'pretty': lambda results, cli_arg: pretty_output(results),
-    'file': file_output,
+    OUTPUT_PRETTY: lambda results, cli_arg: pretty_output(results),
+    OUTPUT_FILE: file_output,
     None: lambda results, cli_arg: default_output(results),
 }
 
