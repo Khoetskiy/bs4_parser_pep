@@ -4,19 +4,25 @@ import datetime as dt
 import logging
 from pathlib import Path
 
-from constants import BASE_DIR, DATETIME_FORMAT, OUTPUT_FILE, OUTPUT_PRETTY
 from prettytable import PrettyTable
+
+from constants import (
+    DATETIME_FORMAT,
+    OUTPUT_FILE,
+    OUTPUT_PRETTY,
+    RESULTS_DIR,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def default_output(results: list[tuple]) -> None:
+def default_output(results: list[tuple], *args) -> None:
     """Выводит данные построчно в консоль без форматирования."""
     for row in results:
         print(*row)
 
 
-def pretty_output(results: list[tuple]) -> None:
+def pretty_output(results: list[tuple], *args) -> None:
     """Создаёт отформатированную таблицу для консольного вывода."""
     table = PrettyTable()
     table.field_names = results[0]
@@ -25,17 +31,16 @@ def pretty_output(results: list[tuple]) -> None:
     print(table)
 
 
-def file_output(results: list[tuple], cli_arg: argparse.Namespace) -> None:
+def file_output(results: list[tuple], *args) -> None:
     """Сохраняет результаты парсинга в CSV файл."""
-    results_dir = BASE_DIR / 'results'
-    results_dir.mkdir(exist_ok=True, parents=True)
+    RESULTS_DIR.mkdir(exist_ok=True, parents=True)
 
-    parser_mode = cli_arg.mode
+    parser_mode = args[0].mode
     now = dt.datetime.now()
     now_formatted = now.strftime(DATETIME_FORMAT)
 
     file_name = f'{parser_mode}_{now_formatted}.csv'
-    file_path = results_dir / file_name
+    file_path = RESULTS_DIR / file_name
 
     with Path(file_path).open('w', encoding='utf-8', newline='') as f:
         csv.writer(f, dialect='unix').writerows(results)
@@ -44,9 +49,9 @@ def file_output(results: list[tuple], cli_arg: argparse.Namespace) -> None:
 
 
 OUTPUT_HANDLERS = {
-    OUTPUT_PRETTY: lambda results, cli_arg: pretty_output(results),
+    OUTPUT_PRETTY: pretty_output,
     OUTPUT_FILE: file_output,
-    None: lambda results, cli_arg: default_output(results),
+    None: default_output,
 }
 
 
