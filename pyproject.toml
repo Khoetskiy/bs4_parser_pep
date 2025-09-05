@@ -9,9 +9,9 @@ dependencies = [
 ]
 
 [tool.ruff]
-src = ["backend"]
+src = ["src"]
 line-length = 79
-target-version = "py312"
+target-version = "py39"
 
 exclude = [
     ".bzr",
@@ -123,6 +123,7 @@ ignore = [
     "T201",   # Печать print
     "RUF002",  # Использование кириллицы
 
+    "ARG001", # Неиспользуемый аргумент функции
     "ARG005", # Неиспользуемый аргумент lamba функции
     "N818", # Название исклюения без Exception в конце
     "DTZ005", # Использование datetime.now() без timezone
@@ -135,7 +136,7 @@ unfixable = [
 ]
 
 [tool.ruff.lint.isort]
-known-local-folder = ["apps", "config"]
+known-local-folder = ["src"]
 lines-between-types = 0
 
 [tool.ruff.lint.flake8-quotes]
