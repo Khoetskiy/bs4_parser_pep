@@ -1,6 +1,6 @@
 # 🐍 BS4 Parser PEP
 
-![GitHub last commit](https://img.shields.io/github/last-commit/Khoetskiy/bs4_parser_pep) ![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/Khoetskiy/bs4_parser_pep) ![GitHub license](https://img.shields.io/github/license/Khoetskiy/bs4_parser_pep) ![GitHub top language](https://img.shields.io/github/languages/top/Khoetskiy/bs4_parser_pep) ![GitHub repo size](https://img.shields.io/github/repo-size/Khoetskiy/bs4_parser_pep) ![GitHub stars](https://img.shields.io/github/stars/Khoetskiy/bs4_parser_pep) ![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
 
 **Парсер документации Python** (*what's new, latest versions, download, pep*) с возможностью сбора информации о статусах PEP, скачивания документации и анализа обновлений Python.
 
