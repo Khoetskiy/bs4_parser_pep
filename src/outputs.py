@@ -7,6 +7,7 @@ from pathlib import Path
 from prettytable import PrettyTable
 
 from constants import (
+    BASE_DIR,
     DATETIME_FORMAT,
     OUTPUT_FILE,
     OUTPUT_PRETTY,
@@ -33,14 +34,16 @@ def pretty_output(results: list[tuple], *args) -> None:
 
 def file_output(results: list[tuple], *args) -> None:
     """Сохраняет результаты парсинга в CSV файл."""
-    RESULTS_DIR.mkdir(exist_ok=True, parents=True)
+    # Тесты требуют создания папки здесь и наличия BASE_DIR
+    results_dir = BASE_DIR / RESULTS_DIR
+    results_dir.mkdir(exist_ok=True, parents=True)
 
     parser_mode = args[0].mode
     now = dt.datetime.now()
     now_formatted = now.strftime(DATETIME_FORMAT)
 
     file_name = f'{parser_mode}_{now_formatted}.csv'
-    file_path = RESULTS_DIR / file_name
+    file_path = results_dir / file_name
 
     with Path(file_path).open('w', encoding='utf-8', newline='') as f:
         csv.writer(f, dialect='unix').writerows(results)

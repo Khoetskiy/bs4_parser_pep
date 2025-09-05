@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
 from constants import (
+    BASE_DIR,
     CACHED_NAME,
     DOWNLOADS_DIR,
     EXPECTED_STATUS,
@@ -159,8 +160,10 @@ def download(session: requests_cache.CachedSession) -> None:
     archive_url = urljoin(download_url, href)
 
     filename = archive_url.split('/')[-1]
-    DOWNLOADS_DIR.mkdir(exist_ok=True, parents=True)
-    archive_path = DOWNLOADS_DIR / filename
+    # Тесты требуют создания папки здесь и наличия BASE_DIR
+    downloads_dir = BASE_DIR / DOWNLOADS_DIR
+    downloads_dir.mkdir(exist_ok=True, parents=True)
+    archive_path = downloads_dir / filename
 
     if archive_path.exists():
         logger.info(
