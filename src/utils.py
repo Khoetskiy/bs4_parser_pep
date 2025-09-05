@@ -33,8 +33,8 @@ def get_response(
     except RequestException as e:
         error_msg = f'Ошибка при загрузке страницы {url}: {e}'
         raise RequestErrorException(error_msg) from e
-    else:
-        return response
+
+    return response
 
 
 def find_tag(
