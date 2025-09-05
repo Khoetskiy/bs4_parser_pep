@@ -1,16 +1,16 @@
 import logging
 import re
 import time
-
 from pathlib import Path
 from urllib.parse import urljoin
 
 import requests_cache
+from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
 from constants import (
-    BASE_DIR,
     CACHED_NAME,
+    DOWNLOADS_DIR,
     EXPECTED_STATUS,
     EXPIRE_AFTER_CACHE,
     MAIN_DOC_URL,
@@ -23,7 +23,6 @@ from exceptions import (
     RequestErrorException,
 )
 from outputs import control_output
-from tqdm import tqdm
 from utils import find_tag, get_response, get_soup
 
 logger = logging.getLogger(__name__)
@@ -51,6 +50,7 @@ def whats_new(session: requests_cache.CachedSession) -> list[tuple]:
     sections_by_python = div_with_ul.find_all('li', class_='toctree-l1')
 
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
+    errors = []
 
     for section in tqdm(
         sections_by_python,
@@ -60,12 +60,22 @@ def whats_new(session: requests_cache.CachedSession) -> list[tuple]:
         version_a_tag = find_tag(section, 'a')
         version_link = urljoin(whats_new_url, version_a_tag.get('href'))
 
-        soup = get_soup(session, version_link, 'lxml')
+        try:
+            soup = get_soup(session, version_link, 'lxml')
+        except RequestErrorException as e:
+            errors.append(e)
+            continue
+
         h1 = find_tag(soup, 'h1')
         dl = find_tag(soup, 'dl')
         dl_text = dl.text.replace('\n', ' ')
         results.append((version_link, h1.text, dl_text))
         time.sleep(0.1)
+
+    if errors:  # FIXME: Надо ли?
+        for error in errors:
+            logger.error(error)
+
     return results
 
 
@@ -150,9 +160,8 @@ def download(session: requests_cache.CachedSession) -> None:
     archive_url = urljoin(download_url, href)
 
     filename = archive_url.split('/')[-1]
-    downloads_dir = BASE_DIR / 'downloads'
-    downloads_dir.mkdir(exist_ok=True, parents=True)
-    archive_path = downloads_dir / filename
+    DOWNLOADS_DIR.mkdir(exist_ok=True, parents=True)
+    archive_path = DOWNLOADS_DIR / filename
 
     if archive_path.exists():
         logger.info(
@@ -186,6 +195,8 @@ def pep(session: requests_cache.CachedSession) -> list[tuple]:
 
     results = []
     count_status = {}
+    errors = []
+    mismatch_statuses = []
 
     soup = get_soup(session, peps_numerical_idx_url, 'lxml')
     table_tag = find_tag(soup, 'table', attrs={'class': 'docutils'})
@@ -205,7 +216,12 @@ def pep(session: requests_cache.CachedSession) -> list[tuple]:
             a_tag = find_tag(cols[1], 'a', attrs={'href': True})
             pep_link = urljoin(PEP_URL, a_tag['href'])
 
-            soup = get_soup(session, pep_link, 'lxml')
+            try:  # FIXME: Нужен ли здесь еще один блок, если весь цикл в try/except?
+                soup = get_soup(session, pep_link, 'lxml')
+            except RequestErrorException as e:
+                errors.append(e)
+                continue
+
             section = find_tag(soup, 'section', attrs={'id': 'pep-content'})
             dl = find_tag(section, 'dl', attrs={'class': 'field-list'})
             status = dl.select_one(
@@ -213,7 +229,7 @@ def pep(session: requests_cache.CachedSession) -> list[tuple]:
             ).get_text(strip=True)
 
             if status not in EXPECTED_STATUS[preview_status]:
-                logger.warning(
+                mismatch_statuses.append(
                     MISMATCH_LOG_TEMPLATE.format(
                         pep_link, status, EXPECTED_STATUS[preview_status]
                     )
@@ -221,12 +237,17 @@ def pep(session: requests_cache.CachedSession) -> list[tuple]:
 
             count_status[status] = count_status.get(status, 0) + 1
             time.sleep(0.1)
-        except ParserBaseException:
-            logger.exception('Ошибка при обработке PEP %s:', pep_link)
+        except ParserBaseException as e:
+            errors.append(e)
             continue
 
-    for status, count in sorted(count_status.items()):
-        results.append((status, count))
+    for error in errors:
+        logger.error(error)
+
+    for mismatch in mismatch_statuses:
+        logger.warning(mismatch)
+
+    results.extend(sorted(count_status.items()))
 
     return [
         ('Статус', 'Количество'),
@@ -244,23 +265,24 @@ MODE_TO_FUNCTION = {
 
 
 def main():
-    configure_logging()
-    logger.info('Парсер запущен!')
-
-    arg_parser = configure_argument_parser(MODE_TO_FUNCTION.keys())
-    args = arg_parser.parse_args()
-    logger.info('Аргументы командной строки: %s', args)
-
-    session = requests_cache.CachedSession(
-        cache_name=CACHED_NAME, expire_after=EXPIRE_AFTER_CACHE
-    )
-
-    if args.clear_cache:
-        logger.info('Очистка кеша..')
-        session.cache.clear()
-
-    parser_mode = args.mode
     try:
+        configure_logging()  # FIXME: Нужно ли функцию для логирования помещать в try/except?
+        logger.info('Парсер запущен!')
+
+        arg_parser = configure_argument_parser(MODE_TO_FUNCTION.keys())
+        args = arg_parser.parse_args()
+        logger.info('Аргументы командной строки: %s', args)
+
+        session = requests_cache.CachedSession(
+            cache_name=CACHED_NAME, expire_after=EXPIRE_AFTER_CACHE
+        )
+
+        if args.clear_cache:
+            logger.info('Очистка кеша..')
+            session.cache.clear()
+
+        parser_mode = args.mode
+
         results = MODE_TO_FUNCTION[parser_mode](session)
 
         if results is not None:
