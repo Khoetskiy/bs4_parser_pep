@@ -72,9 +72,8 @@ def whats_new(session: requests_cache.CachedSession) -> list[tuple]:
         results.append((version_link, h1.text, dl_text))
         time.sleep(0.1)
 
-    if errors:  # FIXME: Надо ли?
-        for error in errors:
-            logger.error(error)
+    for error in errors:
+        logger.error(error)
 
     return results
 
@@ -216,7 +215,7 @@ def pep(session: requests_cache.CachedSession) -> list[tuple]:
             a_tag = find_tag(cols[1], 'a', attrs={'href': True})
             pep_link = urljoin(PEP_URL, a_tag['href'])
 
-            try:  # FIXME: Нужен ли здесь еще один блок, если весь цикл в try/except?
+            try:
                 soup = get_soup(session, pep_link, 'lxml')
             except RequestErrorException as e:
                 errors.append(e)
@@ -266,7 +265,7 @@ MODE_TO_FUNCTION = {
 
 def main():
     try:
-        configure_logging()  # FIXME: Нужно ли функцию для логирования помещать в try/except?
+        configure_logging()
         logger.info('Парсер запущен!')
 
         arg_parser = configure_argument_parser(MODE_TO_FUNCTION.keys())
